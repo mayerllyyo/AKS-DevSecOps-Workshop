@@ -25,6 +25,11 @@ import org.springframework.http.MediaType;
 @RestController
 public class HttpController {
 
+  // SECURITY: Whitelist of authorized hosts to prevent SSRF attacks
+  private static final String[] AUTHORIZED_HOSTS = {
+      "localhost", "127.0.0.1", "testvuln.org"
+  };
+
   public static final String[] SECRETS = {
       "victory", "business", "available", "shipping", "washington"
   };
@@ -83,10 +88,34 @@ public class HttpController {
   }
 
   /*
+   * Validates that the provided host is in the whitelist
+   * SECURITY: Prevents SSRF attacks by restricting requests to authorized hosts only
+   */
+  private boolean isAuthorizedHost(String host) {
+    if (host == null || host.isEmpty()) {
+      return false;
+    }
+    for (String authorizedHost : AUTHORIZED_HOSTS) {
+      if (authorizedHost.equalsIgnoreCase(host)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /*
    * fake method to simulate clicking on the link in the email
    */
   private void fakeClickingLinkEmail(String host, String resetLink) {
     try {
+      // SECURITY: Validate host against whitelist to prevent SSRF attacks
+      if (!isAuthorizedHost(host)) {
+        throw new IllegalArgumentException("Host is not authorized");
+      }
+      if (resetLink == null || resetLink.isEmpty()) {
+        throw new IllegalArgumentException("Reset link cannot be empty");
+      }
+      
       HttpHeaders httpHeaders = new HttpHeaders();
       HttpEntity httpEntity = new HttpEntity(httpHeaders);
       new RestTemplate()
