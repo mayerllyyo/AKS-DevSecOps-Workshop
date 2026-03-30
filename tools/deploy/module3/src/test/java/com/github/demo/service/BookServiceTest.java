@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 public class BookServiceTest {
 
     // Testing API token key
-    private static final String API_TOKEN = "AIzaSyAQfxPJiounkhOjODEO5ZieffeBv6yft2Q";
+    private static final String API_TOKEN = "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";
     
     private BookService bookService;
 
